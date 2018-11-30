@@ -75,23 +75,35 @@ print(df4.columns, df4.columns.size)
 columnNmae2 = set(df4.columns)
 
 #similar columns
+print("similar columns ")
+print(len(set(columnNmae1).intersection(columnNmae2)))
 set(columnNmae1).intersection(columnNmae2)
 
+
 #on the 1st data but not on the 2nd
+print("columns 1st data but not on the 2nd ")
 print(len(set(columnNmae1).difference(columnNmae2)))
 print(set(columnNmae1).difference(columnNmae2))
 
 #on the 2nd data but not on the 1st
+print("columns 2nd data but not on the 1st ")
 print(len(set(columnNmae2).difference(columnNmae1)))
 print(set(columnNmae2).difference(columnNmae1))
 
 
 
 # round to 5 decimals
-df3['Long'] = round(df3['lon(degr)'], 5)
-df3['Lat'] = round(df3['lat(degr)'], 5)
-df4['Long'] = round(df4['X'], 5)
-df4['Lat'] = round(df4['Y'], 5)
+df3['Long'] = round(df3['lon(degr)'], 3)
+df3['Lat'] = round(df3['lat(degr)'], 3)
+df4['Long'] = round(df4['X'], 3)
+df4['Lat'] = round(df4['Y'], 3)
+
+result = pd.concat(df3, df4, on=['qual', 'load(kg)', 'tare(kg)', 'loadnr', 'hr', 'month', 'day', 'year', 'sec', 'min'])
+print(result.columns)
+
+result2 = df4.equals(df3)
+print(result2)
+result2.to_csv("Yield")
 
 # check how many different rows
 different_rows = pd.concat([df3, df4]).drop_duplicates(keep=False, inplace=False)  # 5 decimals - 1417 different rows - either remove those rows or go to 4 decimals
