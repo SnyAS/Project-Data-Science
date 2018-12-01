@@ -3,15 +3,16 @@ from osgeo import gdal
 import csv
 import argparse
 
-
+parser = argparse.ArgumentParser(description='GeoTiff to CSV translator')
+parser.add_argument('path_to_geo_tiff_file', help='path to geoTiff file')
+parser.add_argument('path_to_output_csv_file', help='path to output csv file')
+args = parser.parse_args()
 
 #used information from following link for extraction and translation of x,y to lat,long
 #https://gis.stackexchange.com/questions/57710/determining-coordinates-of-corners-of-raster-layer-using-pyqgis/57711#57711
 
-path_to_geo_tiff_file = ""
-
 #loading tiff
-tiff_as_raster = gdal.Open(path_to_geo_tiff_file, gdal.GA_ReadOnly)
+tiff_as_raster = gdal.Open(args.path_to_geo_tiff_file, gdal.GA_ReadOnly)
 
 #extract dim of raster
 width = tiff_as_raster.RasterXSize
