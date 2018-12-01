@@ -76,10 +76,14 @@ def soilSample():
     Outlier1 = df2[['Outlier']].values
     print((Outlier == Outlier1).all())
 
+<<<<<<< HEAD:smilarity.py
 
 #soilSample()
 
 # def yieldSimilarity():
+=======
+soilSample()
+>>>>>>> reorganize file folder structure:semidas_old_files/smilarity2.py
 
 import pandas as pd
 q49_file = 'C://Users//Inholland//Desktop//Newfolder//Yield(1)__000029-20180305-033343-Q49_Uien_2018.csv'
@@ -96,7 +100,6 @@ print("similar columns ")
 print(len(set(columnNmae1).intersection(columnNmae2)))
 set(columnNmae1).intersection(columnNmae2)
 
-
 #on the 1st data but not on the 2nd
 print("columns 1st data but not on the 2nd ")
 print(len(set(columnNmae1).difference(columnNmae2)))
@@ -106,8 +109,6 @@ print(set(columnNmae1).difference(columnNmae2))
 print("columns 2nd data but not on the 1st ")
 print(len(set(columnNmae2).difference(columnNmae1)))
 print(set(columnNmae2).difference(columnNmae1))
-
-
 
 # round to 5 decimals
 df3['Long'] = round(df3['lon(degr)'], 3)
@@ -146,3 +147,21 @@ new_df4 = new_df4.drop(['index'], axis=1)
 
 # check how many different rows
 pd.concat([new_df3, new_df4]).drop_duplicates(keep=False)  # Empty DataFrame which means they are the same
+<<<<<<< HEAD:smilarity.py
+=======
+'''
+def merging():
+    df = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(1)__20180301_max_sturm_q_49.csv')
+    print(df.columns, df.columns.size)
+    df2 = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(2)__bodemscanq49.csv')
+    print(df2.columns, df2.columns.size)
+
+    if df.columns == df2.columns:
+        result = pd.semidas_old_files(df, df2, on=['Lat', 'Long'])
+        print(result.columns)
+
+        result2 = df2.equals(df)
+        print(result2)
+        result2.to_csv("Soil - Sample")
+'''
+>>>>>>> reorganize file folder structure:semidas_old_files/smilarity2.py

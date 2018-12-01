@@ -6,11 +6,11 @@ folder_path = "/Users/andreydelany/Documents/Inholland/Project_BigData/datasets"
 
 df_1 = pd.read_csv(folder_path + '/SoilSample(1).csv')
 #print(df_1.columns, df_1.columns.size)
-#print(df_1.head())
+print(df_1.head())
 
 df_2 = pd.read_csv(folder_path + '/SoilSample(2).csv')
 #print(df_2.columns, df_2.columns.size)
-#print(df_2.head())
+print(df_2.head())
 
 print("differences can be found in followinng columns:")
 #mapping different column names of the two datasets onto each other
