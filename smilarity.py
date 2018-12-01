@@ -6,6 +6,22 @@ from decimal import *
 '''
 
 
+def merging():
+    df = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(1)__20180301_max_sturm_q_49.csv')
+    print(df.columns, df.columns.size)
+    df2 = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(2)__bodemscanq49.csv')
+    print(df2.columns, df2.columns.size)
+
+    if df.columns == df2.columns:
+        result = pd.merge(df, df2, on=['Lat', 'Long'])
+        print(result.columns)
+
+        result2 = df2.equals(df)
+        print(result2)
+        result2.to_csv("Soil - Sample")
+
+#merging()
+
 def soilSample():
     df = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(1)__20180301_max_sturm_q_49.csv')
     print(df.columns, df.columns.size)
@@ -61,7 +77,8 @@ def soilSample():
     print((Outlier == Outlier1).all())
 
 
-soilSample()
+#soilSample()
+
 # def yieldSimilarity():
 
 import pandas as pd
@@ -108,7 +125,6 @@ result2.to_csv("Yield")
 # check how many different rows
 different_rows = pd.concat([df3, df4]).drop_duplicates(keep=False, inplace=False)  # 5 decimals - 1417 different rows - either remove those rows or go to 4 decimals
 len(different_rows)  # if pleased, assign index to both dataframes
-
 print(len(different_rows))
 
 # assign index to each row in both dataframes
@@ -130,18 +146,3 @@ new_df4 = new_df4.drop(['index'], axis=1)
 
 # check how many different rows
 pd.concat([new_df3, new_df4]).drop_duplicates(keep=False)  # Empty DataFrame which means they are the same
-'''
-def merging():
-    df = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(1)__20180301_max_sturm_q_49.csv')
-    print(df.columns, df.columns.size)
-    df2 = pd.read_csv('C:/Users/Home/Desktop/dataset/SoilSample(2)__bodemscanq49.csv')
-    print(df2.columns, df2.columns.size)
-
-    if df.columns == df2.columns:
-        result = pd.merge(df, df2, on=['Lat', 'Long'])
-        print(result.columns)
-
-        result2 = df2.equals(df)
-        print(result2)
-        result2.to_csv("Soil - Sample")
-'''
