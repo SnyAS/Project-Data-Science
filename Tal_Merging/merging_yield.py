@@ -2,9 +2,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# files locations
-q49_file = 'C:/Users/Tal/Downloads/Yield(1)__000029-20180305-033343-Q49_Uien_2018.csv'
-q49_file2 = 'C:/Users/Tal/Downloads/Yield(2)__opb_uien_q49.csv'
+# files locations for yield datasets
+q49_file = "Epsilon file"
+q49_file2 = 'Beta file'
 
 # read files as dataframes
 df3 = pd.read_csv(q49_file, encoding='ISO-8859-1')
@@ -20,9 +20,14 @@ df4 = df4.rename(columns={'speed(km/h': 'speed(km/h)', 'conv.facto': 'conv.facto
                           'loadbelt(m': 'loadbelt(m)', 'usertare(%': 'usertare(%)',
                           'tarecorrec': 'tarecorrectedyield(ton/ha)', 'tarecorre2': 'tarecorrectedtotalyield(ton)'})
 
-# remove irrelevant/redundent columns
-df3 = df3.drop(['year', 'month', 'day', 'sec', 'qual', 'tare(kg)', 'conv.factor', 'usertare(%)', 'sats', 'alt(m)'], axis=1)
-df4 = df4.drop(['year', 'month', 'day', 'sec', 'qual', 'Hoogte', 'tare(kg)', 'conv.factor', 'usertare(%)'], axis=1)
+# describe the longitude
+df3['lon(degr)'].describe()
+# remove noise
+df3 = df3[df3['lon(degr)'] < 6]
+# describe the longitude
+df4['lon(degr)'].describe()
+# remove noise
+df4 = df4[df4['lon(degr)'] < 6]
 
 # round to longitude and latitude to 5 decimals so there will be only 291 different rows
 df3['lon(degr)'] = round(df3['lon(degr)'], 5)
@@ -31,64 +36,65 @@ df4['lon(degr)'] = round(df4['lon(degr)'], 5)
 df4['lat(degr)'] = round(df4['lat(degr)'], 5)
 
 pd.concat([df3[['lon(degr)', 'lat(degr)']],df4[['lon(degr)', 'lat(degr)']]]).drop_duplicates(keep=False, inplace=False)
-# 291 different rows when it comes to latitude and longitude
+
 df3.count() # 35883
 df4.count() # 35880
 
 # Inner join of two dataframes on longitude and latitude - including duplicates
-inner_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='inner').fillna(0).reset_index(drop=True))
+inner_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='inner').reset_index(drop=True))
 # unique rows based on the combination of longitude and latitude
 unique_inner_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='inner').drop_duplicates(['lon(degr)', 'lat(degr)']).reset_index(drop=True))
 # Amount of unique rows
-unique_inner_df.count() # 29109 unique rows
+unique_inner_df.count() # 29108 unique rows
 # Amount of original data-points lost
 print(len(df3) - len(unique_inner_df)) # lost 6775 data points
 # Amount of repeated combinations of longitude and latitude
 print(len(inner_df) - len(unique_inner_df)) # 20235 redundant rows
-# plot doesn't work with the current datasets
-sns.scatterplot(x='lon(degr)', y='lat(degr)', data=unique_inner_df, legend='brief')
 
-# Outer join of two dataframes on longitude and latitude - including duplicates
-outer_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='outer').fillna(0).reset_index(drop=True))
-# unique rows based on the combination of longitude and latitude
-unique_outer_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='outer').drop_duplicates(['lon(degr)', 'lat(degr)']).reset_index(drop=True))
-# Amount of unique rows
-unique_outer_df.count() # 29249 unique rows
-# Amount of original data-points lost
-print(len(df3) - len(unique_outer_df)) # lost 6484 data points
-# Amount of repeated combinations of longitude and latitude
-print(len(outer_df) - len(unique_outer_df)) # 20235 redundant rows
+# unique inner-join visualization - kde plot
+f, ax = plt.subplots(figsize=(6, 6))
+sns.kdeplot(unique_inner_df['lon(degr)'], unique_inner_df['lat(degr)'], ax=ax)
+sns.rugplot(unique_inner_df['lon(degr)'], color="g", ax=ax)
+sns.rugplot(unique_inner_df['lat(degr)'], vertical=True, ax=ax)
 
-# Left join of two dataframes on longitude and latitude - including duplicates
-left_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='left').fillna(0).reset_index(drop=True))
-# unique rows based on the combination of longitude and latitude
-unique_left_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='left').drop_duplicates(['lon(degr)', 'lat(degr)']).reset_index(drop=True))
-# Amount of unique rows
-unique_left_df.count() # 29109 unique rows
-# Amount of original data-points lost
-print(len(df3) - len(unique_left_df)) # lost 6624 data points
-# Amount of repeated combinations of longitude and latitude
-print(len(left_df) - len(unique_left_df)) # 20235 redundant rows
+# unique inner-join visualization - scatter plot
+g = sns.jointplot(x='lon(degr)', y='lat(degr)', data=unique_inner_df, kind="kde", color="m")
+g.plot_joint(plt.scatter, c="w", s=30, linewidth=.5, marker="+")
+g.ax_joint.collections[0].set_alpha(0)
+g.set_axis_labels("$X$", "$Y$")
 
-# Right join of two dataframes on longitude and latitude - including duplicates
-right_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='right').fillna(0).reset_index(drop=True))
-# unique rows based on the combination of longitude and latitude
-unique_right_df = (pd.merge(df3, df4, on=['lon(degr)', 'lat(degr)'], how='right').drop_duplicates(['lon(degr)', 'lat(degr)']).reset_index(drop=True))
-# Amount of unique rows
-unique_right_df.count() # 29249 unique rows
-# Amount of original data-points lost
-print(len(df3) - len(unique_right_df)) # lost 6635 data points
-# Amount of repeated combinations of longitude and latitude
-print(len(right_df) - len(unique_right_df)) # 20235 redundant rows
+# df3 visualization - kde plot
+f, ax = plt.subplots(figsize=(6, 6))
+sns.kdeplot(df3['lon(degr)'], df3['lat(degr)'], ax=ax)
+sns.rugplot(df3['lon(degr)'], color="g", ax=ax)
+sns.rugplot(df3['lat(degr)'], vertical=True, ax=ax)
+
+# df3 visualization - scatter plot
+g = sns.jointplot(x='lon(degr)', y='lat(degr)', data=df3, kind="kde", color="m")
+g.plot_joint(plt.scatter, c="w", s=30, linewidth=.5, marker="+")
+g.ax_joint.collections[0].set_alpha(0)
+g.set_axis_labels("$X$", "$Y$")
+
+# df4 visualization - kde plot
+f, ax = plt.subplots(figsize=(6, 6))
+sns.kdeplot(df4['lon(degr)'], df4['lat(degr)'], ax=ax)
+sns.rugplot(df4['lon(degr)'], color="g", ax=ax)
+sns.rugplot(df4['lat(degr)'], vertical=True, ax=ax)
+
+# df4 visualization - scatter plot
+g = sns.jointplot(x='lon(degr)', y='lat(degr)', data=df4, kind="kde", color="m")
+g.plot_joint(plt.scatter, c="w", s=30, linewidth=.5, marker="+")
+g.ax_joint.collections[0].set_alpha(0)
+g.set_axis_labels("$X$", "$Y$")
+
+inner_df.isnull().any()
+
+'''
+Semida TODO:
+compare each two corresponding columns and take the mean value of those column and assign it to a newly created column
+drop all _x and _y columns after taking the mean of them and assign them to a new column, if column has no corresponding 
+column just keep it as it is
+'''
 
 # Write all unique dataframes to csv
 unique_inner_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_unique_inner_join.csv')
-unique_outer_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_unique_outer_join.csv')
-unique_left_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_unique_left_join.csv')
-unique_right_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_unique_right_join.csv')
-
-# Write all full dataframes to csv
-inner_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_inner_join.csv.csv')
-outer_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_outer_join.csv')
-left_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_left_join.csv')
-right_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_right_join.csv')
