@@ -128,3 +128,29 @@ print((unique_inner_df['beltspdm'].values == unique_inner_df['beltspd(m/s)'].val
 print((unique_inner_df['totalarea'].values == unique_inner_df['totalarea(ha)'].values).all())
 print((unique_inner_df['yieldton'].values == unique_inner_df['yield(ton/ha)'].values).all())
 print((unique_inner_df['loadbeltm'].values == unique_inner_df['loadbelt(m)'].values).all())
+
+# ['workwidth(m)', 'qual_y', 'tare(kg)', 'tarecorrectedtotalyield(ton)_y', 'totalyield(ton)_x', 'workwidth'] <- to be dropped
+keep_col= ['year', 'month', 'day', 'hr', 'min', 'sec', 'lon(degr)', 'lat(degr)',
+       'alt(m)', 'qual_x', 'sats', 'x(m)', 'y(m)', 'speed(km/h)', 'load(kg)',
+       'conv.factor_x', 'beltspd(m/s)', 'yield(ton/ha)', 'point weight (kg)_x',
+       'totalarea(ha)', 'worktime(s)', 'loadnr_x', 'loadweight(ton)_x',
+       'loadbelt(m)', 'usertare(%)', 'tarecorrectedyield(ton/ha)_x',
+       'tarecorrectedtotalyield(ton)_x', 'Hoogte', 'speedkmh',
+       'loadkg', 'tarekg', 'conv.factor_y', 'beltspdm', 'yieldton', 'totalyield(ton)_y', 'point weight (kg)_y', 'totalarea',
+       'worktimes', 'loadnr_y', 'loadweight(ton)_y', 'loadbeltm',
+       'tarecorrectedyield(ton/ha)_y']
+unique_inner_df = unique_inner_df[keep_col]
+print(len(unique_inner_df.columns), unique_inner_df.columns)
+unique_inner_df.to_csv('C:/Users/Inholland/Desktop/dataset/yield_unique_inner_join_no_duplicates.csv')
+
+#renaming attributes
+unique_inner_df = unique_inner_df.rename(columns={'speedkmh': 'speed(km/h)', 'conv.facto': 'conv.factor', 'loadkg': 'load(kg)',
+'X': 'lon(degr)', 'Y': 'lat(degr)', 'Hoogte': 'alt(m)', 'tarekg': 'tare(kg)',
+'conv.facto': 'conv.factor', 'beltspdm': 'beltspd(m/s)', 'workwidth(': 'workwidth(m)',
+'yieldton': 'yield(ton/ha)', 'totalyield': 'totalyield(ton)',
+'point_weig': 'point weight (kg)', 'totalarea': 'totalarea(ha)',
+'worktimes': 'worktime(s)', 'loadweight': 'loadweight(ton)',
+'loadbeltm': 'loadbelt(m)',
+'tarecorrec': 'tarecorrectedyield(ton/ha)', 'tarecorre2': 'tarecorrectedtotalyield(ton)'})
+len(unique_inner_df.columns)
+
