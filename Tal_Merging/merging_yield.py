@@ -97,4 +97,34 @@ column just keep it as it is
 '''
 
 # Write all unique dataframes to csv
-unique_inner_df.to_csv('C:/Users/Tal/Desktop/Tal/Year 4/big data/yield_unique_inner_join.csv')
+unique_inner_df.to_csv('C:/Users/Inholland/Desktop/dataset/yield_unique_inner_join.csv')
+
+print(len(unique_inner_df.columns))
+'''
+the rest of features which can't be compared
+'year', 'month', 'day', 'hr', 'min', 'sec', 'lon(degr)', 'lat(degr)', 'alt(m)',sats', 'x(m)', 'y(m)', '', 'usertare(%)', 'Hoogte', 'loadkg', '',
+'''
+#returning ture ->can be merged
+print((unique_inner_df['workwidth(m)'].values == unique_inner_df['workwidth'].values).all()) #true
+print((unique_inner_df['qual_y'].values == unique_inner_df['qual_x'].values).all()) #true
+print((unique_inner_df['tare(kg)'].values == unique_inner_df['tarekg'].values).all()) #true
+print((unique_inner_df['tarecorrectedtotalyield(ton)_y'].values == unique_inner_df['totalyield(ton)_y'].values).all())#duplicate?
+print((unique_inner_df['totalyield(ton)_x'].values == unique_inner_df['tarecorrectedtotalyield(ton)_x'].values).all()) #true
+print((unique_inner_df['workwidth'].values == unique_inner_df['workwidth(m)'].values).all()) #true
+
+#returning false
+print((unique_inner_df['tarecorrectedtotalyield(ton)_x'].values == unique_inner_df['tarecorrectedtotalyield(ton)_y'].values).all())
+print((unique_inner_df['tarecorrectedyield(ton/ha)_y'].values == unique_inner_df['tarecorrectedyield(ton/ha)_x'].values).all())
+print((unique_inner_df['loadweight(ton)_y'].values == unique_inner_df['loadweight(ton)_x'].values).all())
+print((unique_inner_df['loadnr_y'].values == unique_inner_df['loadnr_x'].values).all())
+print((unique_inner_df['point weight (kg)_y'].values == unique_inner_df['point weight (kg)_x'].values).all())
+print((unique_inner_df['conv.factor_y'].values == unique_inner_df['conv.factor_x'].values).all())
+print((unique_inner_df['totalyield(ton)_y'].values == unique_inner_df['totalyield(ton)_x'].values).all())
+print((unique_inner_df['worktime(s)'].values == unique_inner_df['worktimes'].values).all())
+print((unique_inner_df['beltspdm'].values == unique_inner_df['beltspd(m/s)'].values).all())
+print((unique_inner_df['loadkg'].values == unique_inner_df['load(kg)'].values).all())
+print((unique_inner_df['speed(km/h)'].values == unique_inner_df['speedkmh'].values).all())
+print((unique_inner_df['beltspdm'].values == unique_inner_df['beltspd(m/s)'].values).all())
+print((unique_inner_df['totalarea'].values == unique_inner_df['totalarea(ha)'].values).all())
+print((unique_inner_df['yieldton'].values == unique_inner_df['yield(ton/ha)'].values).all())
+print((unique_inner_df['loadbeltm'].values == unique_inner_df['loadbelt(m)'].values).all())
