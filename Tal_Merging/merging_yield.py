@@ -154,3 +154,11 @@ unique_inner_df = unique_inner_df.rename(columns={'speedkmh': 'speed(km/h)', 'co
 'tarecorrec': 'tarecorrectedyield(ton/ha)', 'tarecorre2': 'tarecorrectedtotalyield(ton)'})
 len(unique_inner_df.columns)
 
+'''working on it
+#taking the mean of _x and _y columns
+unique_inner_df.columns["conv.factor_average"] = unique_inner_df.columns[:, "conv.factor_x", "conv.factor_y"].mean(axis=1) #axis=1 <-row wise 0 = column wise
+#conv_factor_average = unique_inner_df.groupby(["conv.factor_x", "conv.factor_y"]).mean()
+print(conv_factor_average)
+
+#unique_inner_df.columns["conv.factor_average"] = conv_factor_average
+'''
