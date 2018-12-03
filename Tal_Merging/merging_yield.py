@@ -133,6 +133,7 @@ print((unique_inner_df['totalarea'].values == unique_inner_df['totalarea(ha)'].v
 print((unique_inner_df['yieldton'].values == unique_inner_df['yield(ton/ha)'].values).all())
 print((unique_inner_df['loadbeltm'].values == unique_inner_df['loadbelt(m)'].values).all())
 
+
 # ['workwidth(m)', 'qual_y', 'tare(kg)', 'tarecorrectedtotalyield(ton)_y', 'totalyield(ton)_x', 'workwidth'] <- to be dropped
 keep_col= ['year', 'month', 'day', 'hr', 'min', 'sec', 'lon(degr)', 'lat(degr)',
        'alt(m)', 'qual_x', 'sats', 'x(m)', 'y(m)', 'speed(km/h)', 'load(kg)',
@@ -143,12 +144,14 @@ keep_col= ['year', 'month', 'day', 'hr', 'min', 'sec', 'lon(degr)', 'lat(degr)',
        'loadkg', 'tarekg', 'conv.factor_y', 'beltspdm', 'yieldton', 'totalyield(ton)_y', 'point weight (kg)_y', 'totalarea',
        'worktimes', 'loadnr_y', 'loadweight(ton)_y', 'loadbeltm',
        'tarecorrectedyield(ton/ha)_y']
-unique_inner_df = unique_inner_df[keep_col]
-print(len(unique_inner_df.columns), unique_inner_df.columns)
-unique_inner_df.to_csv('C:/Users/Inholland/Desktop/dataset/yield_unique_inner_join_no_duplicates.csv')
+
+unique_inner_df1 = unique_inner_df
+unique_inner_df1   = unique_inner_df1[keep_col]
+print(len(unique_inner_df1.columns), unique_inner_df.columns)
+unique_inner_df.to_csv('C:/Users/Inholland/Desktop/dataset/yield_unique_inner_join_no_duplicates1.csv')
 
 #renaming attributes
-unique_inner_df = unique_inner_df.rename(columns={'speedkmh': 'speed(km/h)', 'conv.facto': 'conv.factor', 'loadkg': 'load(kg)',
+unique_inner_df1 = unique_inner_df.rename(columns={'speedkmh': 'speed km/h', 'conv.facto': 'conv.factor', 'loadkg': 'load(kg)',
 'X': 'lon(degr)', 'Y': 'lat(degr)', 'Hoogte': 'alt(m)', 'tarekg': 'tare(kg)',
 'conv.facto': 'conv.factor', 'beltspdm': 'beltspd(m/s)', 'workwidth(': 'workwidth(m)',
 'yieldton': 'yield(ton/ha)', 'totalyield': 'totalyield(ton)',
@@ -156,13 +159,77 @@ unique_inner_df = unique_inner_df.rename(columns={'speedkmh': 'speed(km/h)', 'co
 'worktimes': 'worktime(s)', 'loadweight': 'loadweight(ton)',
 'loadbeltm': 'loadbelt(m)',
 'tarecorrec': 'tarecorrectedyield(ton/ha)', 'tarecorre2': 'tarecorrectedtotalyield(ton)'})
-len(unique_inner_df.columns)
+len(unique_inner_df1.columns)
+unique_inner_df1.columns
 
-'''working on it
+
+
 #taking the mean of _x and _y columns
-unique_inner_df.columns["conv.factor_average"] = unique_inner_df.columns[:, "conv.factor_x", "conv.factor_y"].mean(axis=1) #axis=1 <-row wise 0 = column wise
-#conv_factor_average = unique_inner_df.groupby(["conv.factor_x", "conv.factor_y"]).mean()
-print(conv_factor_average)
+#unique_inner_df1.columns["conv.factor_average"] = unique_inner_df1.columns[:, "conv.factor_x", "conv.factor_y"].mean(axis=1) #axis=1 <-row wise 0 = column wise
 
-#unique_inner_df.columns["conv.factor_average"] = conv_factor_average
+unique_inner_df1["conv.factor_x"].value_counts() # value: 30.1168 - count: 28206
+unique_inner_df1["conv.factor_y"].value_counts() # value: 30.117 - count: 28206
+unique_inner_df1["conv.factor_x"] = round(unique_inner_df["conv.factor_x"], 3)
+unique_inner_df1["conv.factor_x"].head() == unique_inner_df1["conv.factor_y"].head()
+#unique_inner_df1["conv.factor_y"].head()
+#CAN DROP THE conv.factor because it contains the same value for each row so there's no point in keeping it
+#conv_factor_average = unique_inner_df.groupby(["conv.factor_x", "conv.factor_y"]).mean()
+
+
+unique_inner_df1["speed(km/h)"].value_counts() # mean: 6.230955  - count: 28206
+unique_inner_df1["speed km/h"].value_counts() # mean: 6.228926  - count: 28206
+unique_inner_df1["speed km/h"].describe()
+unique_inner_df1["speed(km/h)"].describe()
+#unique_inner_df1["_x"] = round(unique_inner_df["_x"], 3)
+(unique_inner_df1["speed(km/h)"].head(100) == unique_inner_df1["speed km/h"].head(100))#.all() <-when I do all they = False but when I look at the first 5 columns they returen 4 - true 1-false
+
+
+unique_inner_df1["loadnr_y"].value_counts() # mean: 7.351485 count: 28206
+unique_inner_df1["loadnr_x"].value_counts() # mean: 7.352726  - count: 28206
+unique_inner_df1["loadnr_y"].describe()
+unique_inner_df1["loadnr_x"].describe()
+#unique_inner_df1["_x"] = round(unique_inner_df["_x"], 3)
+(unique_inner_df1["loadnr_y"].head() == unique_inner_df1["loadnr_x"].head()).all() #<-returns true for all (same)
+
+unique_inner_df1["loadweight(ton)_x"].value_counts() # mean: 33.631060 count: 28206
+unique_inner_df1["loadweight(ton)_y"].value_counts() # mean: 33.613224  - count: 28206
+unique_inner_df1["loadweight(ton)_x"].describe()
+unique_inner_df1["loadweight(ton)_y"].describe()
+(unique_inner_df1["loadweight(ton)_x"].head(10) == unique_inner_df1["loadweight(ton)_y"].head(10)) #returns true for majority so remove?
+
+unique_inner_df1["totalyield(ton)_x"].value_counts() # mean: 94.454683 count: 28206
+unique_inner_df1["totalyield(ton)_y"].value_counts() # mean: 94.422921  - count: 28206
+unique_inner_df1["totalyield(ton)_x"].describe()
+unique_inner_df1["totalyield(ton)_y"].describe()
+
+(unique_inner_df1["totalyield(ton)_y"].head(10) == unique_inner_df1["totalyield(ton)_x"].head(10)) #returns true for majority so remove?
+(unique_inner_df1["tarecorrectedtotalyield(ton)_x"].head() == unique_inner_df1["totalyield(ton)_x"].head()).all() #returns true for all (same)
+(unique_inner_df1["totalyield(ton)_y"].head() == unique_inner_df1["tarecorrectedtotalyield(ton)_y"].head()).all()#returns true for all(same)
+
+unique_inner_df1["tarecorrectedyield(ton/ha)_x"].describe()# mean: 47.118443 count: 28206
+unique_inner_df1["tarecorrectedyield(ton/ha)_y"].describe()# mean: 47.161643  - count: 28206
+#unique_inner_df1["_x"] = round(unique_inner_df["_x"], 3)
+(unique_inner_df1["tarecorrectedyield(ton/ha)_x"].head(100) == unique_inner_df1["tarecorrectedyield(ton/ha)_y"].head(100)) #returns true for majority so remove?
+
+unique_inner_df1["point weight (kg)_y"].describe()# mean: 1.798181 count: 28206
+unique_inner_df1["point weight (kg)_x"].describe()# mean: 1.797609  - count: 28206
+(unique_inner_df1["point weight (kg)_x"].head(100) == unique_inner_df1["point weight (kg)_y"].head(100)) #returns true for majority so remove?
+
+unique_inner_df1["qual_y"].describe()# mean: 4 count: 28206
+unique_inner_df1["qual_x"].describe()# mean: 4  - count: 28206
+(unique_inner_df1["qual_x"].head() == unique_inner_df1["qual_y"].head()).all() #returns true for all(same)
+
+unique_inner_df1["workwidth"].describe()# mean: 2.223733 count: 28206
+unique_inner_df1["workwidth(m)"].describe()# mean: 2.223733  - count: 28206
+(unique_inner_df1["workwidth"].head() == unique_inner_df1["workwidth(m)"].head()).all() #returns true for all(same)
+
+
+'''
+Remaining attributes to check mean  
+['year', 'month', 'day', 'hr', 'min', 'sec', 'lon(degr)', 'lat(degr)',
+       'alt(m)', '', 'sats', 'x(m)', 'y(m)', 
+       'load(kg)', 'tare(kg)',, 'beltspd(m/s)', '',
+       'yield(ton/ha)','totalarea(ha)', 'worktime(s)', 
+       'loadbelt(m)', 'usertare(%)', 'alt(m)', 'load(kg)', 'tare(kg)', , 'beltspd(m/s)', '',
+       'yield(ton/ha)','totalarea(ha)', 'worktime(s)','loadbelt(m)']
 '''
