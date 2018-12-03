@@ -1,57 +1,64 @@
+import argparse
 import pandas as pd
-from numpy.core.multiarray import ndarray
 from scipy.interpolate import griddata
 
-q49_file = '/Users/andreydelany/Documents/Inholland/Project_BigData/datasets/Yield(1).csv'
-q49_file2 = '/Users/andreydelany/Documents/Inholland/Project_BigData/datasets/Yield(2).csv'
+parser = argparse.ArgumentParser(description='Resampling Columns from one dataset to another depending on geo coordinates')
+parser.add_argument('filepath_target', help='path to target file')
+parser.add_argument('target_x')
+parser.add_argument('target_y')
+parser.add_argument('filepath_to_be_merged', help='path to file that going to be merged')
+parser.add_argument('tobemerged_x')
+parser.add_argument('tobemerged_y')
+args = parser.parse_args()
 
-df_1 = pd.read_csv(q49_file, encoding='ISO-8859-1')
-df_2 = pd.read_csv(q49_file2)
-
-lat_dest_interpolate = df_1['lat(degr)']
-lon_dest_interpolate = df_1['lon(degr)']
-
-lat_lon_origin_interpolate = df_2[['X','Y']]
-
-yield_origin = df_2['yield(ton/']
-yield_des_actual = df_1['yield(ton/ha)']
-
-yield_des_nearest = griddata(lat_lon_origin_interpolate, yield_origin, (lon_dest_interpolate, lat_dest_interpolate), method='nearest')
-yield_des_linear = griddata(lat_lon_origin_interpolate, yield_origin, (lon_dest_interpolate, lat_dest_interpolate), method='linear')
-yield_des_cubic = griddata(lat_lon_origin_interpolate, yield_origin, (lon_dest_interpolate, lat_dest_interpolate), method='cubic')
+def test():
+    d = {'x': [-1,-1,1,1], 'y': [-1,1,-1,1],'value':[2,1,4,3]}
+    target = pd.DataFrame(data=d)
 
 
-def validation(actual,predicted):
-    actual_array = actual.as_matrix()
-    if type(predicted) is not ndarray:
-        predicted_array = predicted.as_matrix()
-    else:
-        predicted_array = predicted
-    differences = []
-    outliers = []
-    for i in range(actual.shape[0]):
-        predicted_value = predicted_array[i].item()
-        try:
-            if type(actual_array[i]) is str:
-                actual_value = float(actual_array[i].replace("$","").replace(".", "."))
-            else:
-                actual_value = actual_array[i]
-            difference = abs(actual_value - predicted_value)
-            if difference > 1.:
-                outliers.append(difference)
-            differences.append(difference)
+    d = {'x': [-0.5,-0.5,0.5,0.5], 'y': [-0.5,0.5,-0.5,0.5],'value_interpolated':[2,1,4,3]}
+    tobe_merged = pd.DataFrame(data=d)
 
-        except Exception as err:
-            print(predicted_array[i],type(predicted_array[i]),i, err)
-    differences = pd.np.array(differences).astype(float)
-    print('average_error:',pd.np.nanmean(differences))
-    print('max_error:',pd.np.nanmax(differences))
-    print('min_error:',pd.np.nanmin(differences))
-    print('amount_of_errors_over_one:',len(outliers))
+    target_values = griddata(tobe_merged[["x","y"]], tobe_merged["value_interpolated"], target[["x","y"]], method="nearest")
 
-print("nearest Neighbor")
-validation(yield_des_actual, yield_des_nearest)
-print("linear")
-validation(yield_des_actual,yield_des_linear)
-print("cubic")
-validation(yield_des_actual,yield_des_cubic)
+    #target = target.reset_index(drop=True)
+    target_values = target_values.reset_index(drop=True)
+
+    final = pd.concat([target,target_values],axis=1)
+    print(final.head())
+
+def load_dataframe(path_to_file):
+    return pd.read_csv(path_to_file, encoding='ISO-8859-1')
+
+def get_file_name(path_to_file):
+    parts_of_path = path_to_file.split("/")
+    return parts_of_path[-1].replace(".csv","")
+
+filepath_to_be_merged = args.filepath_to_be_merged
+filename_to_be_merged = get_file_name(filepath_to_be_merged)
+
+target_filepath = args.filepath_target
+target_file = load_dataframe(target_filepath)
+file_to_be_merged = load_dataframe(filepath_to_be_merged)
+
+target_file_coordinate_identifier = [args.target_x,args.target_y]
+file_to_be_merged_coordinate_identifier = [args.tobemerged_x,args.tobemerged_y]
+
+all_columns_of_to_be_merged_file= list(file_to_be_merged)
+columns_to_be_merged = [x for x in all_columns_of_to_be_merged_file if x not in file_to_be_merged_coordinate_identifier]
+
+coordinates_to_be_interpolated = file_to_be_merged[file_to_be_merged_coordinate_identifier]
+target_coordinates = target_file[target_file_coordinate_identifier]
+
+interpolation_method = 'nearest'
+
+for column in columns_to_be_merged:
+    values_to_be_interpolated = file_to_be_merged[column]
+    target_values = griddata(coordinates_to_be_interpolated, values_to_be_interpolated, target_coordinates, method=interpolation_method)
+    target_values.name = target_values.name + "_" + filename_to_be_merged
+
+    target_values = target_values.reset_index(drop=True)
+
+    target_file = pd.concat([target_file, target_values], axis=1)
+
+target_file.to_csv(target_filepath.replace(".csv","_merged.csv"))
