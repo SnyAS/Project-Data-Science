@@ -2,6 +2,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
+#Data to be merged: Alpha charlie and delta
+
+
 # files locations for yield datasets
 q49_file = "Epsilon file"
 q49_file2 = 'Beta file'
