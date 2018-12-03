@@ -9,6 +9,7 @@ parser.add_argument('target_y')
 parser.add_argument('filepath_to_be_merged', help='path to file that going to be merged')
 parser.add_argument('tobemerged_x')
 parser.add_argument('tobemerged_y')
+parser.add_argument('interpolation_method',choices=['nearest','linear','cubic'])
 args = parser.parse_args()
 
 def test():
@@ -50,15 +51,17 @@ columns_to_be_merged = [x for x in all_columns_of_to_be_merged_file if x not in 
 coordinates_to_be_interpolated = file_to_be_merged[file_to_be_merged_coordinate_identifier]
 target_coordinates = target_file[target_file_coordinate_identifier]
 
-interpolation_method = 'nearest'
-
 for column in columns_to_be_merged:
     values_to_be_interpolated = file_to_be_merged[column]
-    target_values = griddata(coordinates_to_be_interpolated, values_to_be_interpolated, target_coordinates, method=interpolation_method)
-    target_values.name = target_values.name + "_" + filename_to_be_merged
+    target_values = griddata(coordinates_to_be_interpolated, values_to_be_interpolated, target_coordinates, method=args.interpolation_method)
+    if type(target_values) is not pd.np.ndarray:
+        target_values = target_values.values
 
-    target_values = target_values.reset_index(drop=True)
+    new_column_name = column + "_" + filename_to_be_merged
 
-    target_file = pd.concat([target_file, target_values], axis=1)
+    #target_values = target_values.reset_index(drop=True)
+
+    target_file[new_column_name] = target_values
+    #target_file = pd.concat([target_file, target_values], axis=1)
 
 target_file.to_csv(target_filepath.replace(".csv","_merged.csv"))
