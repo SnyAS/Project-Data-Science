@@ -1,0 +1,156 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from sklearn.preprocessing import scale
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+
+seed = 42
+
+file_loc = 'C:/Users/Inholland/Desktop/final_withSatelite.csv'
+
+df = pd.read_csv(file_loc)
+
+df = df.drop(['Unnamed: 0', 'Outlier_ALPHA_20181202', 'hr_CHARLIE_20181202', 'min_CHARLIE_20181202', 'year_DELTHA_20181202',
+              'month_DELTHA_20181202', 'day_DELTHA_20181202', 'hr_DELTHA_20181202', 'min_DELTHA_20181202', 'sec_DELTHA_20181202',
+              'beltspd(m/_DELTHA_20181202', 'dosering_DELTHA_20181202', 'mean_tare(kg)', 'mean_beltspd(m/s)_', 'mean_workwidth',
+              'mean_totalyield', 'usertare(%_DELTHA_20181202', 'mean_worktime(s)', 'mean_yield(ton/ha)',
+              'beltspd(m/_CHARLIE_20181202', 'conv.facto_DELTHA_20181202', 'mean_conv.factor', 'mean_totalarea',
+              'speed(km/h_DELTHA_20181202', 'yield(ton/_DELTHA_20181202'], axis=1)
+len(df.columns)
+#df.to_csv("24_remainding_attributes")
+
+
+df = df.drop(['worktime(s_DELTHA_20181202','sats','loadbelt(m_DELTHA_20181202','mean_loadweight','mean_loadbeltm',], axis=1)
+len(df.columns)
+df.to_csv("19_remainding_attributes")
+
+
+def heatmap(num_of_columns, dataframe):
+    k = num_of_columns #number of variables for heatmap
+    corrmat = dataframe.corr()
+    cols = corrmat.nlargest(k, 'tarecorrec_DELTHA_20181202')['tarecorrec_DELTHA_20181202'].index
+    cm = np.corrcoef(dataframe[cols].values.T)
+    sns.set(font_scale=.8)
+    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 7.5}, yticklabels=cols.values, xticklabels=cols.values)
+    plt.show()
+    return
+
+heatmap(24, df)
+
+sns.scatterplot(df['value_06-05-2018'], df['tarecorrec_DELTHA_20181202'])
+
+def report(results, n_top=3):
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results['rank_test_score'] == i)
+        for candidate in candidates:
+            print("Model with rank: {0}".format(i))
+            print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
+                  results['mean_test_score'][candidate],
+                  results['std_test_score'][candidate]))
+            print("Parameters: {0}".format(results['params'][candidate]))
+            print("")
+    return
+
+
+def grid_search(classifier, X, y, parameters):
+    clf = classifier
+    grid = RandomizedSearchCV(clf, parameters)
+    grid.fit(X, y.values.ravel())
+    print("GridSearchCV %d candidate parameter settings."
+          % (len(grid.cv_results_['params'])))
+    report(grid.cv_results_)
+    return report(grid.cv_results_)
+
+df['tarecorrec_DELTHA_20181202'].value_counts()
+len(df.columns)
+df['tarecorrec_DELTHA_20181202'].count()
+
+# Scaling the data for the neural net to perform better
+for column in df.columns:
+    df[column] = scale(df[column]).reshape(-1, 1)
+
+
+# Assign all features to dataframe X (will be used as predictors)
+X = df.iloc[:, df.columns != 'tarecorrec_DELTHA_20181202']
+# Assign target column called y (what we want to predict)
+y = df.iloc[:, df.columns == 'tarecorrec_DELTHA_20181202']
+
+# Split the whole dataset, 80% training, 20% testing
+X_train, X_test, y_train, y_true = train_test_split(X, y, test_size=0.2, random_state=seed)
+
+X_train.count()
+y_train.count()
+X_test.count()
+y_true.count()
+# Random Forest
+rf = RandomForestRegressor(random_state=seed)
+# Random Forest parameters for gridsearch
+rf_grid_parameters = {'n_estimators': [10, 50, 100],
+                      'criterion': ['mse', 'mae'],
+                      'max_depth': [8, 16, 30, 50],
+                      'min_samples_split': [2, 3, 5, 10],
+                      'min_samples_leaf': [1, 3, 5],
+                      "max_features": ['auto', 'sqrt', 'log2', 0.5]}
+# Random Forest grid search
+clf_best_param = grid_search(rf, X_train, y_train, rf_grid_parameters)
+# Best parameters for RF
+best_rf = RandomForestRegressor(n_estimators=200, criterion='mse', max_features='log2', max_depth=30, min_samples_leaf=1,min_samples_split=2, random_state=seed)
+
+rf_model = best_rf.fit(X_train, y_train)
+
+y_pred = rf_model.predict(X_test)
+
+r2_score(y_true, y_pred)
+
+rf_model.feature_importances_
+
+# Gradient Boosting Trees
+gbt = GradientBoostingRegressor(loss='huber', learning_rate=0.03, n_estimators=100, min_samples_split=3, min_samples_leaf=1,
+                                max_depth=30, max_features='log2', random_state=seed)
+
+gbt_model = gbt.fit(X_train, y_train)
+
+y_pred = gbt_model.predict(X_test)
+
+mean_squared_error(y_true, y_pred)
+r2_score(y_true, y_pred)
+
+# GBT parameters for gridsearch
+gbt_grid_parameters = {'loss': ['ls', 'huber'],
+                       'learning_rate': [0.01, 0.03, 0.1, 0.3],
+                       'n_estimators': [20, 50, 100],
+                       'min_samples_split': [1, 2, 3, 5],
+                       'min_samples_leaf': [1, 2, 3],
+                       'max_depth': [3, 8, 15],
+                       'max_features': ['auto', 'sqrt', 'log2', 0.5]}
+# GBT grid search
+gbt_best_param = grid_search(gbt, X_train, y_train, gbt_grid_parameters)
+
+
+# Neural Networks
+
+nn = MLPRegressor(random_state=seed, hidden_layer_sizes=80, activation='relu', solver='adam', alpha=0.001,
+                  learning_rate_init=0.005, warm_start=True, early_stopping=True, verbose=2, max_iter=500)
+
+nn_model = nn.fit(X_train, y_train)
+
+[coef for coef in nn_model.coefs_]
+
+y_pred = nn_model.predict(X_test)
+
+r2_score(y_true, y_pred)
+
+# NN grid parameters
+nn_grid_parameters = {'hidden_layer_sizes': [5, 10, 15],
+                       'activation': ['tanh', 'relu'],
+                       'solver': ['sgd', 'adam'],
+                       'alpha': [0.0001, 0.001, 0.01],
+                       'learning_rate': [0.001, 0.003, 0.01, 0.3],
+                       'warm_start': [True, False],
+                       'early_stopping': [True, False]}
+# NN grid search
+nn_best_param = grid_search(nn, X_train, y_train, nn_grid_parameters)
