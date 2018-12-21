@@ -21,7 +21,7 @@ df = df.drop(['Unnamed: 0', 'Outlier_ALPHA_20181202', 'hr_CHARLIE_20181202', 'mi
               'beltspd(m/_CHARLIE_20181202', 'conv.facto_DELTHA_20181202', 'mean_conv.factor', 'mean_totalarea',
               'speed(km/h_DELTHA_20181202', 'yield(ton/_DELTHA_20181202'], axis=1)
 len(df.columns)
-#df.to_csv("24_remainding_attributes")
+#"24_remainding_attributes"
 
 
 df = df.drop(['worktime(s_DELTHA_20181202','sats','loadbelt(m_DELTHA_20181202','mean_loadweight','mean_loadbeltm',], axis=1)
