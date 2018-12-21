@@ -24,10 +24,9 @@ len(df.columns)
 #"24_remainding_attributes"
 
 
-df = df.drop(['worktime(s_DELTHA_20181202','sats','loadbelt(m_DELTHA_20181202','mean_loadweight','mean_loadbeltm',], axis=1)
+df = df.drop(['worktime(s_DELTHA_20181202','sats','loadbelt(m_DELTHA_20181202','mean_loadweight','mean_loadbeltm','tarecorre2_DELTHA_20181202'], axis=1)
 len(df.columns)
-df.to_csv("19_remainding_attributes")
-
+df.to_csv("18_remainding_attributes")
 
 def heatmap(num_of_columns, dataframe):
     k = num_of_columns #number of variables for heatmap
